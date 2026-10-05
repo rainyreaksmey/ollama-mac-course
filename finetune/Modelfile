@@ -1,0 +1,18 @@
+# Our fine-tuned model, imported from the fused MLX safetensors folder.
+FROM ./models/rainy-llama-1b
+
+# Llama 3 chat format (the same one we trained with)
+TEMPLATE """{{- if .System }}<|start_header_id|>system<|end_header_id|>
+
+{{ .System }}<|eot_id|>{{ end }}
+{{- range .Messages }}<|start_header_id|>{{ .Role }}<|end_header_id|>
+
+{{ .Content }}<|eot_id|>{{ end }}<|start_header_id|>assistant<|end_header_id|>
+
+"""
+PARAMETER stop "<|eot_id|>"
+PARAMETER temperature 0
+
+# the same system header mlx-lm added to every training example
+SYSTEM """Cutting Knowledge Date: December 2023
+Today Date: 03 Oct 2026"""
