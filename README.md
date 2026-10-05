@@ -2,8 +2,9 @@
 
 All the code from the RainyTech video **[Ollama Tutorial for Beginners (2026)](https://youtu.be/c7ehlyoQrXY)**, run for real on a Mac mini M4 with 16 GB. Local AI, no cloud, no API key.
 
-📺 Video: https://youtu.be/c7ehlyoQrXY · Advanced follow-up: https://youtu.be/8V5n0-7I2Cw
-📝 Written tutorial: https://dev.to/rainytechlab/run-ai-locally-on-your-mac-with-ollama-chat-tools-rag-and-a-custom-model-real-numbers-from-a-4ngf
+- 📺 Video: https://youtu.be/c7ehlyoQrXY
+- 📺 Advanced follow-up: https://youtu.be/8V5n0-7I2Cw
+- 📝 Written tutorial: https://dev.to/rainytechlab/run-ai-locally-on-your-mac-with-ollama-chat-tools-rag-and-a-custom-model-real-numbers-from-a-4ngf
 
 | File | What it shows |
 |---|---|
