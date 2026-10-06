@@ -1,4 +1,5 @@
 """Tool calling: the model decides to call real Python functions that read this Mac's disk and memory."""
+import inspect
 import re
 import subprocess
 import ollama
@@ -33,7 +34,12 @@ response = ollama.chat(model="qwen3:4b-instruct", messages=messages, tools=list(
 messages.append(response.message)
 
 for call in response.message.tool_calls or []:
-    result = TOOLS[call.function.name](**call.function.arguments)
+    fn = TOOLS.get(call.function.name)
+    args = call.function.arguments or {}
+    if fn is None or set(args) - set(inspect.signature(fn).parameters):   # unknown tool or unexpected arguments
+        result = f"error: no tool {call.function.name} with arguments {list(args)}"
+    else:
+        result = fn(**args)
     print(f"🔧 {call.function.name}() → {result}")
     messages.append({"role": "tool", "tool_name": call.function.name, "content": result})
 
