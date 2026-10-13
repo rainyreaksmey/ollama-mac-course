@@ -28,20 +28,30 @@ def get_memory() -> str:
 
 
 TOOLS = {"get_disk_free": get_disk_free, "get_memory": get_memory}
-messages = [{"role": "user", "content": "How much free disk space and memory does my Mac have right now? Answer in one short sentence."}]
 
-response = ollama.chat(model="qwen3:4b-instruct", messages=messages, tools=list(TOOLS.values()))
-messages.append(response.message)
 
-for call in response.message.tool_calls or []:
-    fn = TOOLS.get(call.function.name)
-    args = call.function.arguments or {}
-    if fn is None or set(args) - set(inspect.signature(fn).parameters):   # unknown tool or unexpected arguments
-        result = f"error: no tool {call.function.name} with arguments {list(args)}"
-    else:
-        result = fn(**args)
-    print(f"🔧 {call.function.name}() → {result}")
-    messages.append({"role": "tool", "tool_name": call.function.name, "content": result})
+def run_tool(name: str, args: dict, tools: dict = TOOLS) -> str:
+    """Run one tool call. Unknown tools and missing or unexpected arguments come back as an error string."""
+    fn = tools.get(name)
+    if fn is None:
+        return f"error: no tool named {name}"
+    try:
+        inspect.signature(fn).bind(**args)   # checks argument names only, not their types
+    except TypeError as e:
+        return f"error: bad arguments for {name}: {e}"
+    return fn(**args)
 
-final = ollama.chat(model="qwen3:4b-instruct", messages=messages)
-print("\n" + final.message.content)
+
+if __name__ == "__main__":
+    messages = [{"role": "user", "content": "How much free disk space and memory does my Mac have right now? Answer in one short sentence."}]
+
+    response = ollama.chat(model="qwen3:4b-instruct", messages=messages, tools=list(TOOLS.values()))
+    messages.append(response.message)
+
+    for call in response.message.tool_calls or []:
+        result = run_tool(call.function.name, call.function.arguments or {})
+        print(f"🔧 {call.function.name}() → {result}")
+        messages.append({"role": "tool", "tool_name": call.function.name, "content": result})
+
+    final = ollama.chat(model="qwen3:4b-instruct", messages=messages)
+    print("\n" + final.message.content)
